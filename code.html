@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login CBT SMANSADA</title>
+    <style>
+        /* Reset dan font */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Container utama dengan efek card */
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Logo dan gambar */
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            border-radius: 50%;
+            background: url('https://via.placeholder.com/100x100?text=SMANSADA') no-repeat center;
+            background-size: cover;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Judul */
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+            outline: none;
+        }
+
+        /* Checkbox Remember Me */
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .remember-me input {
+            margin-right: 10px;
+        }
+
+        /* Tombol */
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .forgot-password {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Background gambar tambahan (opsional) */
+        .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://source.unsplash.com/featured/?education,school') no-repeat center;
+            background-size: cover;
+            opacity: 0.1;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+    <div class="login-container">
+        <div class="logo"></div>
+        <h1>CBT SMANSADA</h1>
+        <p>Masuk ke Sistem Ujian Berbasis Komputer</p>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Masukkan username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Masukkan password" required>
+            </div>
+            <div class="remember-me">
+                <input type="checkbox" id="remember">
+                <label for="remember">Ingat saya</label>
+            </div>
+            <button type="submit">Login</button>
+            <div class="spinner" id="spinner"></div>
+            <a href="#" class="forgot-password" onclick="forgotPassword()">Lupa Password?</a>
+        </form>
+    </div>
+
+    <script>
+        // Kredensial admin
+        const adminUsername = 'admin';
+        const adminPassword = 'admin123';
+
+        // Load remembered credentials
+        window.onload = function() {
+            if (localStorage.getItem('remember') === 'true') {
+                document.getElementById('username').value = localStorage.getItem('username') || '';
+                document.getElementById('password').value = localStorage.getItem('password') || '';
+                document.getElementById('remember').checked = true;
+            }
+        };
+
+        // Form submit handler
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const remember = document.getElementById('remember').checked;
+            const spinner = document.getElementById('spinner');
+
+            // Validasi dasar
+            if (username.length < 3) {
+                alert('Username minimal 3 karakter!');
+                return;
+            }
+            if (password.length < 6) {
+                alert('Password minimal 6 karakter!');
+                return;
+            }
+
+            // Show loading
+            spinner.style.display = 'block';
+
+            // Simulasi delay login (untuk efek kekinian)
+            setTimeout(() => {
+                spinner.style.display = 'none';
+                if (username === adminUsername && password === adminPassword) {
+                    alert('Login berhasil! Selamat datang di CBT SMANSADA.');
+                    // Simpan jika remember me
+                    if (remember) {
+                        localStorage.setItem('username', username);
+                        localStorage.setItem('password', password);
+                        localStorage.setItem('remember', 'true');
+                    } else {
+                        localStorage.removeItem('username');
+                        localStorage.removeItem('password');
+                        localStorage.removeItem('remember');
+                    }
+                    // Redirect ke dashboard (ganti dengan URL asli)
+                    window.location.href = 'dashboard.html'; // Buat file ini sendiri jika perlu
+                } else {
+                    alert('Username atau password salah!');
+                }
+            }, 2000); // 2 detik delay
+        });
+
+        // Forgot password simulasi
+        function forgotPassword() {
+            alert('Fitur lupa password belum diimplementasikan. Hubungi admin sekolah.');
+        }
+    </script>
+</body>
+</html>
